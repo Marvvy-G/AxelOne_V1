@@ -40,7 +40,7 @@ exports.createPost = async (req, res, next) => {
 //get post
 exports.getPosts = async (req, res, next) => {
     try{
-        const posts = await Post.find().populate("Comment");
+        const posts = await Post.find().populate("comments");
         res.status(200).json({
             status: "success",
             data: {

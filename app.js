@@ -10,10 +10,11 @@ const app = express();
 const adsRoute = require("./routes/adsRoute");
 const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
-//DATABASE
-mongoose.connect("mongodb+srv://bellsehr:password1234@bellsehr.bwuj4eh.mongodb.net/?retryWrites=true&w=majority");
 
-// mongoose.connect("mongodb://localhost/prettyAds");
+//DATABASE
+// mongoose.connect("mongodb+srv://bellsehr:password1234@bellsehr.bwuj4eh.mongodb.net/?retryWrites=true&w=majority");
+
+mongoose.connect("mongodb://localhost/prettyAds");
 
 app.use(express.json());
 app.use("/api/ads", adsRoute);
