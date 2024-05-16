@@ -22,9 +22,9 @@ router.route("/delete/:userId/:postId").delete(userController.protect,
 router.route("/createComment/:userId/:postId").post(userController.protect,
                                     postController.createComment);
 //Edit Comment
-router.route("/editComment/:commentId:").patch(userController.protect,
+router.route("/editComment/:commentId").patch(userController.protect,
                                     postController.editComment );
 //Delete Comment
-router.route("/deleteComment/:id").post(userController.protect,
+router.route("/deleteComment/:commentId").delete(userController.protect,
                                     postController.deleteComment);
 module.exports = router;

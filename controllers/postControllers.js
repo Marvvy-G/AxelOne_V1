@@ -51,6 +51,7 @@ exports.getPosts = async (req, res, next) => {
     {console.log(err)} next();
 }
 
+//edit post
 exports.editPost = async (req, res, next) => {
     try {
         console.log("Authenticated user:", req.User); // Log the authenticated user
@@ -212,7 +213,7 @@ exports.deleteComment = async (req, res) => {
         }
 
         // Remove the comment from the database
-        await Comment.findByIdAndRemove(commentId);
+        await Comment.findByIdAndDelete(commentId);
 
         res.status(200).json({ status: 'success', message: 'Comment deleted successfully' });
     } catch (error) {
