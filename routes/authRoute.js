@@ -9,4 +9,12 @@ router.route("/login").post(userController.login);
 router.route("/signupPage").get(userController.signupPage);
 router.route("/loginPage").get(userController.loginPage);
 
+//get user timeline
+router.route("/timeline/:id").get(userController.protect, userController.timeline)
+
+//update user profile
+router.route("/timeline/editProfile/:id").get(userController.protect, userController.timelineEditPage)
+
+router.route("/timeline/editProfile/:userId").patch(userController.protect, userController.timelineEdit);
+
 module.exports = router;

@@ -75,8 +75,48 @@ exports.login            =    asyncErrorHandler (async (req, res, next) => {
     console.log(token)
        next();
    })
+//Direct Timeline edit controller
+exports.timelineEdit = asyncErrorHandler(async (req, res, next) => {
+    if (!req.User) { // Ensure 'req.user' is correctly referenced
+        return res.status(401).json({ status: "error", message: "Unauthorized" });
+    }
+
+    try {
+        const userId = req.User._id; // Assuming 'req.user' contains the authenticated user's information
+        const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true, runValidators: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({ status: "error", message: "User not found" });
+        }
+
+        return res.status(200).json({ status: "success", data: { updatedUser } });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: "error", message: "Internal server error" });
+    }
+});
 
 
+//Edit direct timeline url get page
+exports.timelineEditPage = asyncErrorHandler(async(req, res, next) => {
+    if(!req.User) {
+        return res.status(401).json({status: "error", message: "unauthorized"})
+    }
+    const user = await User.findById(req.params.id)
+    res.status(201).json({message: "Edit Your profile", user});
+    next();
+})
+
+//Direct timeline
+exports.timeline = asyncErrorHandler(async(req, res, next) => {
+    if(!req.User) {
+        return res.status(401).json({status: "error", message: "unauthorized"})
+    }
+
+    const user = await User.findById(req.params.id).populate("newPost comments")
+    res.status(201).json({data:{user}, message:"Welcome to your timeline"});
+    next();
+})
 
 //middleware for protecting routes
 exports.protect = asyncErrorHandler (async (req, res, next) => {
