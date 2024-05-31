@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const UserSchema = new mongoose.Schema({
     username:{
@@ -106,42 +107,9 @@ const UserSchema = new mongoose.Schema({
         }
     },
     passwordChangedAt: Date,
-    userType:[ {
-        type: String,
-        enum: ['user', 'business', 'admin' ],
-        default: 'user'
-      }],
-   
-    newPost: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Post"
-      }],
-      comments: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment"
-      }],
-    listings: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Listings"
-    }],
-    business:{
-        
-    businessName: {
-        type: String
-    },
-    businessType: {
-        type: String
-    },
-    businessEmail: {
-        type: String,
-    },
-    businessAddress: {
-        type: String,
-    },
-    businessDescription:{
-        type: String,
-    }
-},
+    passwordResetToken: String,
+    passwordResetTokenExpire: Date
+
 }
 
 )
@@ -174,6 +142,14 @@ UserSchema.methods.isPasswordChanged = async function (JWTTimestamp){
     return false;
 }
 
+UserSchema.methods.createResetPasswordToken = function(){
+    const resetToken = crypto.randomBytes (32).toString('hex');
+
+    this.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest('hex');
+    this.passwordResetTokenExpire = Date.now() + 10 * 60 * 1000;
+    console.log(resetToken, this.passwordResetToken)
+    return  resetToken;
+}
 
 module.exports = mongoose.model("User", UserSchema);
 

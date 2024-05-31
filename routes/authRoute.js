@@ -17,4 +17,8 @@ router.route("/timeline/editProfile/:id").get(userController.protect, userContro
 
 router.route("/timeline/editProfile/:userId").patch(userController.protect, userController.timelineEdit);
 
+router.route("/forgotPassword").post(userController.forgotPassword);
+// router.route("/resetPassword/:token").patch(userController.resetPassword);
+
+
 module.exports = router;

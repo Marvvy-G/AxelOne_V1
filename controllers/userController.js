@@ -1,9 +1,13 @@
 const User = require("../model/user");
 const jwt               = require("jsonwebtoken");
-const business = require ("../model/businessDir");
 const asyncErrorHandler = require("../utils/asyncErrorHandler");
 const CustomError = require("../utils/CustomError");
 const utils             = require("util");
+const axios = require("axios");
+const path  = require("path")
+
+
+const sendEmail = require("./../utils/email")
 const signToken = id => {
     return jwt.sign({
            id
@@ -75,6 +79,7 @@ exports.login            =    asyncErrorHandler (async (req, res, next) => {
     console.log(token)
        next();
    })
+   
 //Direct Timeline edit controller
 exports.timelineEdit = asyncErrorHandler(async (req, res, next) => {
     if (!req.User) { // Ensure 'req.user' is correctly referenced
@@ -117,6 +122,98 @@ exports.timeline = asyncErrorHandler(async(req, res, next) => {
     res.status(201).json({data:{user}, message:"Welcome to your timeline"});
     next();
 })
+
+//forgort password
+exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
+  
+    if (!user) {
+      const error = new CustomError('We could not find your account', 404);
+      return next(error);
+    }
+  
+    const resetToken = user.createResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+  
+    const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/resetPassword/${resetToken}`;
+    const message = `You have requested to reset your password. Please use the link below to reset your password.\nPlease Note: This link expires in 8 minutes.\n\n${resetUrl}`;
+  
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'You Have Requested to Change your Password',
+        message: message,
+      });
+  
+      res.status(200).json({
+        status: 'success',
+        message: 'Password reset link sent to user email',
+      });
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+  
+      console.error('Error sending email:', err);
+      return next(new CustomError('There was an error sending password reset email, please try again later', 500));
+    }
+  });
+  
+
+exports.resetPassword = (req, res, next) => {
+
+}
+
+//middleware for authenticating users
+const authenticate = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if(!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({status: 'error', message: 'Unauthorized'})
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try{
+        //verify token
+
+        const decoded = jwt.verify(token, process.env.JWT_SEC);
+
+        //fetch user details from laravel api
+        const response = await axios.get(`https://laravel.com/endpoint`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        req.user = response.data;
+        next();
+    } catch (error) {
+        console.error(error);
+        res.status(401).json({status: 'error', message: 'Unauthorized'})
+    }
+}
+
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'uploads/');
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, `${Date.now()}_${file.originalname}`);
+//     }
+// });
+
+// const fileFilter = (req, file, cb) => {
+//     if (file.mimetype.startsWith('image/')) {
+//         cb(null, true);
+//     } else {
+//         cb(new Error('Not an image! Please upload an image.'), false);
+//     }
+// };
+
+// const upload = multer({
+//     storage: storage,
+//     fileFilter: fileFilter
+// });
 
 //middleware for protecting routes
 exports.protect = asyncErrorHandler (async (req, res, next) => {

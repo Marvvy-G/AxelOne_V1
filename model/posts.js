@@ -24,11 +24,14 @@ const PostSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment"
     }],
-    author: [{
-      type:mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+    author:{
+      type: String,
       required: true
-    }]
+    },
+    organizationId: {
+      type: String,
+      required: true
+    }
 },
 { timestamps: true }
 );

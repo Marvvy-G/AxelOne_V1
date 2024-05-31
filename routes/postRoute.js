@@ -5,8 +5,7 @@ const bodyParser = require("body-parser");
 router.use(bodyParser.urlencoded({extended:true}));
 
 //Create Post
-router.route("/create/:id").post(userController.protect,
-                                   postController.createPost);
+// router.route("/create/:id").post(userController.authenticate, postController.createPost);
 
 //Get Posts
 router.route("/posts").get(postController.getPosts);

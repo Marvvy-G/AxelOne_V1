@@ -7,13 +7,8 @@ const CustomError = require("./../utils/CustomError")
 //create post
 exports.createPost = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id);
-        
-        if (!user) {
-            return res.status(404).json({
-                status: "fail",
-                message: "User not found"
-            });
+        if (!req.User) {
+            return res.status(401).json({ status: "error", message: "Unauthorized" });
         }
         
         // Create the post with the author field set to the user's ID
